@@ -1,0 +1,87 @@
+---
+title: "Encuesta Circuito Limpio"
+author: "Valentina Rodríguez"
+date: "2023-10-12"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(readxl)
+datos <- read_excel("CircuitoLimpioEncuestaahogares.xlsx")
+datos1 <- datos[c(2,4,5, 8:17)]
+a <- sapply(datos1[, 1:13], function(column) all(is.na(column)))
+datos2 <- datos1[!a]
+```
+
+```{r}
+id_hogar <- c(1:nrow(datos2))
+datos3 <- cbind(id_hogar, datos2)
+```
+
+```{r}
+library(tidyr)
+library(dplyr)
+datos4 <- pivot_longer(datos3, cols = c(-id_hogar, -`Número de formulario`,-`Barrio y zona`,-`Manzana`), names_to = "Variable", values_to = "Valor")
+datos4 <- datos4[,-5]
+datos5 <- datos4 %>% filter(!is.na(Valor))
+```
+
+```{r}
+table(datos5$Valor)
+i <- grep(",.*,", datos5$Valor)
+datos5$Valor[i]
+
+
+#Ponemos NA en los 4 datos con doble respuesta
+dato41 <- unlist(strsplit(datos5$Valor[41], ","))
+datos5$Valor[41] <- dato41[3]
+
+dato197 <- unlist(strsplit(datos5$Valor[197], ","))
+datos5$Valor[197] <- dato197[3]
+
+dato64 <- unlist(strsplit(datos5$Valor[64], ","))
+datos5$Valor[64] <- dato64[1]
+
+dato248 <- unlist(strsplit(datos5$Valor[248], ","))
+datos5$Valor[248] <- dato248[1]
+```
+
+```{r}
+datos6 <- datos5 %>% separate(col = Valor, into = c("Sexo", "Edad"), sep = ",")
+```
+
+```{r}
+for (i in 1:nrow(datos6)){
+  if (datos6$Sexo[i]!="Hombre" & datos6$Sexo[i]!="Mujer"){
+    datos6$Edad[i] <- datos6$Sexo[i]
+    datos6$Sexo[i] <- NA
+  }
+}
+
+
+# todos los NA en barrio y zona estan al principio, pertenecen a el barrio el tobogan
+datoscerro <- datos6 %>% filter(
+  `Barrio y zona`=='Villa del Cerro'
+)
+```
+
+
+```{r}
+datoscerro <- datoscerro %>%
+  mutate(Edad = str_replace(Edad, "^\\s+", ""))  # saca los espacios de adelante a las respuestas que tiene
+
+
+table(datoscerro$Sexo, useNA = "always")
+table(datoscerro$Edad, useNA = "always")
+
+
+
+
+
+```
+
