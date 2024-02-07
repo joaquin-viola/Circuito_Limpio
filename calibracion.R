@@ -118,7 +118,7 @@ totales_sexo_ajustado <- round(totales_sexo_ajustado)
 
 totales_edades_frame = as.data.frame(totales_edades_ajustado)
 
-colnames(totales_edad_frame) <- c("Edad","Freq")
+colnames(totales_edades_frame) <- c("Edad","Freq")
 
 
 totales_sexo_frame = as.data.frame(totales_sexo_ajustado)
