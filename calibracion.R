@@ -183,9 +183,28 @@ svytotal(~edades_censo, rak_viv)
 
 rep_dis_per <- as.svrepdesign(dis_per)
 
-rake_cluster <- rake(rep_dis_per, list(~edades_censo,~Sexo),list(totales_edades_frame,totales_sexo_frame))
+rake_cluster <- rake(dis_per, sample.margins=list(~edades_censo,~Sexo),population.margins=list(totales_edades_frame,totales_sexo_frame))
 
 svytotal(~edades_censo, rake_cluster)  #ajusta mejor las edades que el calibrate
 totales_edades_frame
 
 datos_calibrados_rake <- datos_calibrados %>% mutate(w_rake = weights(rake_cluster))
+
+datos_calibrados_rake <- datos_calibrados_rake %>% mutate(ajuste_rake = w_rake/pond_no_resp)
+
+datos_calibrados_rake %>% group_by(id_hogar) %>% select(id_hogar, ajuste_rake) %>% 
+  ggplot(aes(x=ajuste_rake)) + geom_histogram() + xlab("Factores de Ajuste de los hogares") + ylab("Cuantía") + theme_bw()
+
+viviendas_calibradas <- datos_calibrados_rake %>% 
+  group_by(Manzana,id_hogar) %>% 
+  summarise(
+    pond_no_resp = mean(pond_no_resp),
+    w_cali = mean(w_cali),
+    factor_ajuste = mean(factores_ajuste),
+    w_cali2 = mean(w_cali2),
+    factor_ajuste2 = mean(factores_ajuste2),
+    w_rake = mean(w_rake),
+    ajuste_rake = mean(ajuste_rake)
+  )
+
+sum(viviendas_calibradas$w_rake)
