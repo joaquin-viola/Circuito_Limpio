@@ -118,7 +118,7 @@ totales_sexo_ajustado <- round(totales_sexo_ajustado)
 
 totales_edades_frame = as.data.frame(totales_edades_ajustado)
 
-colnames(totales_edades_frame) <- c("Edad","Freq")
+colnames(totales_edades_frame) <- c("edades_censo","Freq")
 
 
 totales_sexo_frame = as.data.frame(totales_sexo_ajustado)
@@ -139,21 +139,53 @@ CONTEOS_POBL = c(nuniverso,
                  totales_edades_frame$Freq[-1],
                  totales_sexo_frame$Freq[-1])
 
-rak <- calibrate(design=dis_per,
+rak_ind <- calibrate(design=dis_per,
                  formula =~ Edad + Sexo,
                  population = CONTEOS_POBL,
                  calfun = "raking")
 
-rak2 <- calibrate(design=dis_per,
+rak_viv <- calibrate(design=dis_per,
                  formula =~ Edad + Sexo,
                  population = CONTEOS_POBL,
                  calfun = "raking",
                  aggregate.stage = 1)
 
 
-svytotal(~Edad,rak) #no es nada, para probar si funciono en raking
+datos_calibrados <- datoscerro2 %>% mutate(w_cali=weights(rak_viv))
 
-svytotal(~Edad,rak2,deff=TRUE)
+datos_calibrados <- datos_calibrados %>% mutate(factores_ajuste = (pond_no_resp)/(w_cali))
 
-svymean(~id_hogar,rak,deff=TRUE)
-svymean(~id_hogar,rak2,deff=TRUE)
+datos_calibrados %>% group_by(id_hogar) %>% select(id_hogar, factores_ajuste) %>% ggplot(aes(x=factores_ajuste)) + geom_histogram()
+
+# los factores de ajustes son muy grandes, vamos a truncarlos!
+
+rak_viv2 <- calibrate(design=dis_per,
+                     formula =~ Edad + Sexo,
+                     population = CONTEOS_POBL,
+                     calfun = "raking",
+                     bounds = c(0.2, 4),
+                     aggregate.stage = 1,
+                     epsilon = 1)
+
+datos_calibrados <- datos_calibrados %>% mutate(w_cali2=weights(rak_viv2))
+
+datos_calibrados <- datos_calibrados %>% mutate(factores_ajuste2 = (pond_no_resp)/(w_cali2))
+
+datos_calibrados %>% group_by(id_hogar) %>% select(id_hogar, factores_ajuste2) %>% ggplot(aes(x=factores_ajuste2)) + geom_histogram()
+
+viviendas_calibradas <- datos_calibrados %>% select(Manzana,id_hogar, pond_no_resp, `Barrio y zona` ,w_cali,w_cali2) %>% group_by(id_hogar)
+
+svytotal(~edades_censo,rak_viv2)
+totales_edades_ajustado
+svytotal(~edades_censo, rak_viv)
+
+#probando con la funcion rake que se tiene mas control de los totales poblacionales
+
+rep_dis_per <- as.svrepdesign(dis_per)
+
+rake_cluster <- rake(rep_dis_per, list(~edades_censo,~Sexo),list(totales_edades_frame,totales_sexo_frame))
+
+svytotal(~edades_censo, rake_cluster)  #ajusta mejor las edades que el calibrate
+totales_edades_frame
+
+datos_calibrados_rake <- datos_calibrados %>% mutate(w_rake = weights(rake_cluster))
