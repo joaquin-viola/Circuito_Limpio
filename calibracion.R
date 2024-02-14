@@ -181,9 +181,8 @@ svytotal(~edades_censo, rak_viv)
 
 #probando con la funcion rake que se tiene mas control de los totales poblacionales
 
-rep_dis_per <- as.svrepdesign(dis_per)
-
-rake_cluster <- rake(dis_per, sample.margins=list(~edades_censo,~Sexo),population.margins=list(totales_edades_frame,totales_sexo_frame))
+rake_cluster <- rake(dis_per, sample.margins=list(~edades_censo,~Sexo),
+                     population.margins=list(totales_edades_frame,totales_sexo_frame))
 
 svytotal(~edades_censo, rake_cluster)  #ajusta mejor las edades que el calibrate
 totales_edades_frame
