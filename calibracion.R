@@ -4,6 +4,8 @@ library(foreign)
 # se leen los datos del censo
 personas_censo <- read_sav("Personas/Personas.sav")
 
+
+
 # debemos ver los segmentos que forman nuestro universo elegible dentro de la seccion para filtrar
 # a las personas pertenecientes a esa seccion
 
@@ -94,7 +96,14 @@ ponderadores <- muestra_zonas_villa %>% select(
   CODCOMP,
   pond_no_resp,
   pond_orig
-  
+)
+
+ponderadores <- ponderadores %>% mutate(
+  CODCOMP = as.character(CODCOMP)
+)
+
+datoscerro <- datoscerro %>% mutate(
+  Manzana = as.character(Manzana)
 )
 
 datoscerro2 <- merge(datoscerro, ponderadores, by.x = "Manzana", by.y="CODCOMP")
@@ -129,9 +138,9 @@ colnames(totales_sexo_frame) <- c("Sexo","Freq")
 
 library(survey)
 
-dis_per <- svydesign(id =~ id_hogar,
-                     strata = NULL, #no deja poner estrato =~ Manzana
-                     # fpc=~1/pond_orig,
+dis_per <- svydesign(id=~id_hogar,
+                     strata = NULL,
+                     # fpc=~1/pond_no_resp,
                      weights =~ pond_no_resp,
                      data=datoscerro2)
 
@@ -148,14 +157,15 @@ rak_viv <- calibrate(design=dis_per,
                  formula =~ Edad + Sexo,
                  population = CONTEOS_POBL,
                  calfun = "raking",
-                 aggregate.stage = 1)
+                 aggregate.stage = 1,
+                 epsilon = 1,
+                 maxit = 100)
 
 
 datos_calibrados <- datoscerro2 %>% mutate(w_cali=weights(rak_viv))
 
 datos_calibrados <- datos_calibrados %>% mutate(factores_ajuste = (pond_no_resp)/(w_cali))
 
-datos_calibrados %>% group_by(id_hogar) %>% select(id_hogar, factores_ajuste) %>% ggplot(aes(x=factores_ajuste)) + geom_histogram()
 
 # los factores de ajustes son muy grandes, vamos a truncarlos!
 
@@ -173,7 +183,7 @@ datos_calibrados <- datos_calibrados %>% mutate(factores_ajuste2 = (pond_no_resp
 
 datos_calibrados %>% group_by(id_hogar) %>% select(id_hogar, factores_ajuste2) %>% ggplot(aes(x=factores_ajuste2)) + geom_histogram()
 
-viviendas_calibradas <- datos_calibrados %>% select(Manzana,id_hogar, pond_no_resp, `Barrio y zona` ,w_cali,w_cali2) %>% group_by(id_hogar)
+
 
 svytotal(~edades_censo,rak_viv2)
 totales_edades_ajustado
@@ -184,26 +194,31 @@ svytotal(~edades_censo, rak_viv)
 rake_cluster <- rake(dis_per, sample.margins=list(~edades_censo,~Sexo),
                      population.margins=list(totales_edades_frame,totales_sexo_frame))
 
+
 svytotal(~edades_censo, rake_cluster)  #ajusta mejor las edades que el calibrate
+
 totales_edades_frame
 
 datos_calibrados_rake <- datos_calibrados %>% mutate(w_rake = weights(rake_cluster))
 
 datos_calibrados_rake <- datos_calibrados_rake %>% mutate(ajuste_rake = w_rake/pond_no_resp)
 
-datos_calibrados_rake %>% group_by(id_hogar) %>% select(id_hogar, ajuste_rake) %>% 
-  ggplot(aes(x=ajuste_rake)) + geom_histogram() + xlab("Factores de Ajuste de los hogares") + ylab("Cuantía") + theme_bw()
+datos_calibrados_rake  %>% select(Manzana,id_hogar, pond_no_resp, w_rake) %>% group_by(Manzana, id_hogar) %>% 
+  summarise(
+    pond_no_resp = mean(pond_no_resp),
+    w_rake = mean(w_rake),
+    ajuste_rake = w_rake/pond_no_resp) %>% ggplot(aes(x=ajuste_rake)) + geom_histogram() + xlab("Factores de Ajuste de los hogares") + ylab("Cuantía") + theme_bw()
 
 viviendas_calibradas <- datos_calibrados_rake %>% 
-  group_by(Manzana,id_hogar) %>% 
+  group_by(id_hogar) %>% 
   summarise(
     pond_no_resp = mean(pond_no_resp),
     w_cali = mean(w_cali),
     factor_ajuste = mean(factores_ajuste),
     w_cali2 = mean(w_cali2),
     factor_ajuste2 = mean(factores_ajuste2),
-    w_rake = mean(w_rake),
-    ajuste_rake = mean(ajuste_rake)
-  )
+    w_rake = mean(w_rake))
 
 sum(viviendas_calibradas$w_rake)
+
+
