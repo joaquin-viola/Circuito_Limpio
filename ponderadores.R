@@ -8,10 +8,10 @@
 # la probabilidad de inclusión de las manzanas están calculadas en el objeto pik
 # la probabilidad de inclusión de los hogares será n/N dado que su manzana salió en la muestra
 
+# source("muestra_circuito.R")
 
 library(tidyverse)
 
-source("muestra_circuito.R")
 
 villa <- as.data.frame(zona1)
 

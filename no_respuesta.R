@@ -19,6 +19,8 @@ tabla_respuestas <- no_respondentes %>% group_by(codcomp) %>% summarise(
   respuestas = sum(Respuesta)
 ) 
 
+sum(tabla_respuestas$respuestas)
+
 no_respondentes %>% group_by(codcomp) %>% summarise(
   respuestas = sum(Respuesta)
 ) %>% ggplot(aes(respuestas)) + geom_histogram()
@@ -101,6 +103,5 @@ muestra_zonas_villa <- left_join(muestra_zonas_villa,prop_resp, by="post_estrato
 muestra_zonas_villa <- muestra_zonas_villa %>% mutate(
   pond_no_resp = pond_orig*(1/prob_resp)
 )
-
 
 

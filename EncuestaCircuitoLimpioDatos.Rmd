@@ -79,8 +79,7 @@ datoscerro <- datoscerro %>%
 table(datoscerro$Sexo, useNA = "always")
 table(datoscerro$Edad, useNA = "always")
 
-
-
+length(unique(datoscerro$id_hogar))
 
 
 ```
