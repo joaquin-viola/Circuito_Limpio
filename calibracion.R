@@ -158,7 +158,6 @@ rak_viv <- calibrate(design=dis_per,
                  population = CONTEOS_POBL,
                  calfun = "raking",
                  aggregate.stage = 1,
-                 epsilon = 1,
                  maxit = 100)
 
 
@@ -173,9 +172,7 @@ rak_viv2 <- calibrate(design=dis_per,
                      formula =~ Edad + Sexo,
                      population = CONTEOS_POBL,
                      calfun = "raking",
-                     bounds = c(0.2, 4),
-                     aggregate.stage = 1,
-                     epsilon = 1)
+                     aggregate.stage = 1)
 
 datos_calibrados <- datos_calibrados %>% mutate(w_cali2=weights(rak_viv2))
 
@@ -219,6 +216,6 @@ viviendas_calibradas <- datos_calibrados_rake %>%
     factor_ajuste2 = mean(factores_ajuste2),
     w_rake = mean(w_rake))
 
-sum(viviendas_calibradas$w_rake)
+sum(viviendas_calibradas$w_cali2)
 
 
