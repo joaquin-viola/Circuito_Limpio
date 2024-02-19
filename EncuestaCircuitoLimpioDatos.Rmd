@@ -21,6 +21,8 @@ datos2 <- datos1[!a]
 ```{r}
 id_hogar <- c(1:nrow(datos2))
 datos3 <- cbind(id_hogar, datos2)
+
+datos_identificados <- cbind(id_hogar,datos)
 ```
 
 ```{r}
