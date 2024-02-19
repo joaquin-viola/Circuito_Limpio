@@ -19,6 +19,6 @@ datos_identificados <- datos_identificados %>% mutate(
 levels(datos_identificados$Recicla)
 levels(datos_identificados$ConoceLaPaloma)
 
-
+# hay que cambiar los nombres de las categorias, mergear con los hogares calibrados y estimar
 
 
