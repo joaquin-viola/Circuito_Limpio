@@ -214,8 +214,13 @@ viviendas_calibradas <- datos_calibrados_rake %>%
     factor_ajuste = mean(factores_ajuste),
     w_cali2 = mean(w_cali2),
     factor_ajuste2 = mean(factores_ajuste2),
-    w_rake = mean(w_rake))
+    w_rake = mean(w_rake),
+    ajuste_rake=w_rake/pond_no_resp)
 
-sum(viviendas_calibradas$w_cali2)
+summary(viviendas_calibradas$ajuste_rake)
 
+sum(datos_calibrados_rake$pond_no_resp)
+sum(viviendas_calibradas$w_rake)
+
+deffK(viviendas_calibradas$w_rake)
 

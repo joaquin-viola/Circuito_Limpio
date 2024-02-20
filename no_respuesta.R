@@ -3,7 +3,7 @@ library(readxl)
 library(RColorBrewer)
 
 
-source("ponderadores.R")
+# source("ponderadores.R")
 
 no_respondentes<-read_xlsx("Copia de Circuito Limpio Direcciones Villa del Cerro.xlsx")
 
@@ -104,4 +104,5 @@ muestra_zonas_villa <- muestra_zonas_villa %>% mutate(
   pond_no_resp = pond_orig*(1/prob_resp)
 )
 
+deffK(muestra_zonas_villa$pond_no_resp)
 

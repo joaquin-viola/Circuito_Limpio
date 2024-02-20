@@ -11,6 +11,7 @@
 # source("muestra_circuito.R")
 
 library(tidyverse)
+library(PracTools)
 
 
 villa <- as.data.frame(zona1)
@@ -46,5 +47,5 @@ sum_pond_hogares=sum(muestra_zonas_villa$pond_orig)*6
 
 
 
-
+deffK(muestra_zonas_villa$pond_orig)
 
