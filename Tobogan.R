@@ -13,7 +13,7 @@ respuestas_tobogan <- datostobogan %>% select(Manzana) %>% group_by(Manzana) %>%
 sum(respuestas_tobogan$Respuestas)
 
 
-total_viviendas=c(NA,38,23,20,18,19,14,11,14,9,9)
+total_viviendas=c(38,23,20,18,19,14,11,14,9,9)
 
 respuestas_tobogan <- cbind(respuestas_tobogan, total_viviendas)
 
@@ -21,5 +21,6 @@ respuestas_tobogan <- cbind(respuestas_tobogan, total_viviendas)
 respuestas_tobogan <- respuestas_tobogan %>% mutate(
   w=total_viviendas/Respuestas
 )
+
 
 

@@ -45,7 +45,7 @@ viviendas_calibradas <- merge(viviendas_calibradas, info_post_estrato, by.x="Man
 
 
 
-# Disenio con post-estrato
+# Disenio con post-estrato  (NO VA)
 disenio_est =  svydesign(ids =~ Manzana,
                                strata =~ as.factor(post_estrato),
                                fpc =~ 1/pond_no_resp,
