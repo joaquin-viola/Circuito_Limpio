@@ -44,15 +44,6 @@ viviendas_calibradas <- merge(viviendas_calibradas, info_post_estrato, by.x="Man
 
 
 
-
-# Disenio con post-estrato  (NO VA)
-disenio_est =  svydesign(ids =~ Manzana,
-                               strata =~ as.factor(post_estrato),
-                               fpc =~ 1/pond_no_resp,
-                               weights =~ w_rake,
-                               data = viviendas_calibradas)
-
-
 # disenio sin post-estrato
 disenio_viviendas = svydesign(ids =~ Manzana,
                                weights =~ w_rake,
@@ -65,19 +56,9 @@ svytotal(~Recicla, disenio_viviendas,deff=TRUE)
 
 svytotal(~ConoceLaPaloma, disenio_viviendas,deff=TRUE)
 
-svytotal(~Recicla, disenio_est,deff=TRUE)
-
-svytotal(~ConoceLaPaloma, disenio_est,deff=TRUE)
-
-
-
 svymean(~Recicla, disenio_viviendas,deff=TRUE)
 
 svymean(~ConoceLaPaloma, disenio_viviendas,deff=TRUE)
-
-svymean(~Recicla, disenio_est,deff=TRUE)
-
-svymean(~ConoceLaPaloma, disenio_est,deff=TRUE)
 
 # estimacion por post-estrato
 
@@ -85,21 +66,13 @@ svyby(formula = ~ Recicla,
       by = ~ post_estrato,
       FUN = svymean,
       na.rm = TRUE,
-      design = disenio_est,
+      design = disenio_viviendas,
       vartype = c("se"))
 
 svyby(formula = ~ ConoceLaPaloma,
       by = ~ post_estrato,
       FUN = svymean,
       na.rm = TRUE,
-      design = disenio_est,
+      design = disenio_viviendas,
       vartype = c("se"))
-
-
-xtable(svyby(formula = ~ ConoceLaPaloma,
-             by = ~ post_estrato,
-             FUN = svymean,
-             na.rm = TRUE,
-             design = disenio_est,
-             vartype = c("se")))
 

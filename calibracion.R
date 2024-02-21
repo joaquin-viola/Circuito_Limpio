@@ -144,49 +144,8 @@ dis_per <- svydesign(id=~id_hogar,
                      weights =~ pond_no_resp,
                      data=datoscerro2)
 
-CONTEOS_POBL = c(nuniverso,
-                 totales_edades_frame$Freq[-1],
-                 totales_sexo_frame$Freq[-1])
 
-rak_ind <- calibrate(design=dis_per,
-                 formula =~ Edad + Sexo,
-                 population = CONTEOS_POBL,
-                 calfun = "raking")
-
-rak_viv <- calibrate(design=dis_per,
-                 formula =~ Edad + Sexo,
-                 population = CONTEOS_POBL,
-                 calfun = "raking",
-                 aggregate.stage = 1,
-                 maxit = 100)
-
-
-datos_calibrados <- datoscerro2 %>% mutate(w_cali=weights(rak_viv))
-
-datos_calibrados <- datos_calibrados %>% mutate(factores_ajuste = (pond_no_resp)/(w_cali))
-
-
-# los factores de ajustes son muy grandes, vamos a truncarlos!
-
-rak_viv2 <- calibrate(design=dis_per,
-                     formula =~ Edad + Sexo,
-                     population = CONTEOS_POBL,
-                     calfun = "raking",
-                     aggregate.stage = 1)
-
-datos_calibrados <- datos_calibrados %>% mutate(w_cali2=weights(rak_viv2))
-
-datos_calibrados <- datos_calibrados %>% mutate(factores_ajuste2 = (pond_no_resp)/(w_cali2))
-
-datos_calibrados %>% group_by(id_hogar) %>% select(id_hogar, factores_ajuste2) %>% ggplot(aes(x=factores_ajuste2)) + geom_histogram()
-
-
-
-svytotal(~edades_censo,rak_viv2)
-totales_edades_ajustado
-svytotal(~edades_censo, rak_viv)
-
-#probando con la funcion rake que se tiene mas control de los totales poblacionales
+#calibramos con la funcion rake que se tiene mas control de los totales poblacionales
 
 rake_cluster <- rake(dis_per, sample.margins=list(~edades_censo,~Sexo),
                      population.margins=list(totales_edades_frame,totales_sexo_frame))
@@ -196,7 +155,7 @@ svytotal(~edades_censo, rake_cluster)  #ajusta mejor las edades que el calibrate
 
 totales_edades_frame
 
-datos_calibrados_rake <- datos_calibrados %>% mutate(w_rake = weights(rake_cluster))
+datos_calibrados_rake <- datoscerro2 %>% mutate(w_rake = weights(rake_cluster))
 
 datos_calibrados_rake <- datos_calibrados_rake %>% mutate(ajuste_rake = w_rake/pond_no_resp)
 
@@ -210,16 +169,12 @@ viviendas_calibradas <- datos_calibrados_rake %>%
   group_by(id_hogar) %>% 
   summarise(
     pond_no_resp = mean(pond_no_resp),
-    w_cali = mean(w_cali),
-    factor_ajuste = mean(factores_ajuste),
-    w_cali2 = mean(w_cali2),
-    factor_ajuste2 = mean(factores_ajuste2),
     w_rake = mean(w_rake),
     ajuste_rake=w_rake/pond_no_resp)
 
 summary(viviendas_calibradas$ajuste_rake)
 
-sum(datos_calibrados_rake$pond_no_resp)
+
 sum(viviendas_calibradas$w_rake)
 
 deffK(viviendas_calibradas$w_rake)
