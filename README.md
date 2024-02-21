@@ -16,4 +16,4 @@ Para el correcto funcionamiento de los códigos se sugiere correrlos en el sigui
 6- estimaciones.R
 7- Tobogan.R
 
-* Este código  carga una base de datos que no está en este repositorio por pesar demasiado, pero se puede descargar libremente en el link https://www4.ine.gub.uy/Anda5/index.php/catalog/243/download/1010 se sugiere guardar el archivo "Personas.sav" en la carpeta que se esté trabajando dentro de otra carpeta llamada "Personas"
+(*) Este código  carga una base de datos que no está en este repositorio por pesar demasiado, pero se puede descargar libremente en el link https://www4.ine.gub.uy/Anda5/index.php/catalog/243/download/1010 se sugiere guardar el archivo "Personas.sav" en la carpeta que se esté trabajando dentro de otra carpeta llamada "Personas"
