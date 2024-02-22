@@ -3,6 +3,8 @@
 load("Personas/personas_cerro.RData")
 
 
+personas_cerro %>% group_by(SEGM) %>% summarise(n_per=n())
+
 npersonascenso = nrow(personas_cerro)
 
 nuniverso = sum(zona1$P_TOT)
