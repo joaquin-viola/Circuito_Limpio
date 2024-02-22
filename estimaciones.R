@@ -60,19 +60,3 @@ svymean(~Recicla, disenio_viviendas,deff=TRUE)
 
 svymean(~ConoceLaPaloma, disenio_viviendas,deff=TRUE)
 
-# estimacion por post-estrato
-
-svyby(formula = ~ Recicla,
-      by = ~ post_estrato,
-      FUN = svymean,
-      na.rm = TRUE,
-      design = disenio_viviendas,
-      vartype = c("se"))
-
-svyby(formula = ~ ConoceLaPaloma,
-      by = ~ post_estrato,
-      FUN = svymean,
-      na.rm = TRUE,
-      design = disenio_viviendas,
-      vartype = c("se"))
-

@@ -1,6 +1,6 @@
 # Guardar los datos del .sav en un rdata
 
-library(foreign)
+
 library(haven)
 
 # se leen los datos del censo

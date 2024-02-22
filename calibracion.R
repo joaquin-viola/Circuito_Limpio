@@ -1,5 +1,4 @@
 ## calibracion
-library(foreign)
 
 load("Personas/personas_cerro.RData")
 
